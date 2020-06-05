@@ -1,0 +1,35 @@
+{{ define "home/index.html" }}
+{{ template "layout/_header.html" .}}
+
+<!DOCTYPE html>
+<form action="/flower" method="GET">
+    <div class="form-group">
+    <label for="server">服务器: </label>
+    <select name="server" class="form-control" id="server">
+        <option value="唯我独尊">唯我独尊</option>
+    </select>
+    </div>
+    <div class="form-group">
+    <label for="flower">花种: </label>
+    <select name="flower" class="form-control" id="flower">
+        <option value="一级荧光菌">一级荧光菌</option>
+        <option value="二级荧光菌">二级荧光菌</option>
+        <option value="一级绣球花">一级绣球花</option>
+        <option value="二级绣球花">二级绣球花</option>
+        <option value="一级郁金香">一级郁金香</option>
+        <option value="二级郁金香">二级郁金香</option>
+        <option value="一级百合">一级百合</option>
+        <option value="二级百合">二级百合</option>
+        <option value="一级牵牛花">一级牵牛花</option>
+        <option value="二级牵牛花">二级牵牛花</option>
+        <option value="一级玫瑰">一级玫瑰</option>
+        <option value="二级玫瑰">二级玫瑰</option>
+        <option value="三级玫瑰">三级玫瑰</option>
+    </select>
+    </div>
+    <button type="submit" class="btn btn-primary">搜索</button>
+</form>
+
+{{ template "layout/_footer.html" .}}
+
+{{ end }}

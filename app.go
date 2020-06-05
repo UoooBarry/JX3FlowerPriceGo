@@ -2,52 +2,76 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"html/template"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 //Get all flowers in the line
-func getFlowers(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	server := r.PostForm.Get("server")
-	flower := r.PostForm.Get("flower")
+func getFlowers(c *gin.Context) {
+	//	server, _ := c.GetPostForm("server")
+	server, _ := c.GetQuery("server")
+	flower, _ := c.GetQuery("flower")
 
 	response, err := http.Get("https://api.jx3box.com/api/flower/price/query?server=" + server + "&flower=" + flower)
 	if err != nil {
-		fmt.Fprint(w, "Getting wrong data!")
+		c.HTML(
+			http.StatusNoContent,
+			"home/index.html",
+			gin.H{
+				"title": "Not Found"},
+		)
 	}
 	data, _ := ioutil.ReadAll(response.Body)
 
 	var content Content
-	parserErr := json.Unmarshal(data, &content)
-	if parserErr != nil {
-		fmt.Fprint(w, parserErr.Error())
-	}
+	json.Unmarshal(data, &content)
 
-	t, _ := template.ParseFiles("views/flowers.html")
+	c.HTML(
+		http.StatusOK,
+		"flowers/flowers_list.html",
+		gin.H{
+			"title": server + " : " + flower,
+		})
 
 	for _, flower := range content.Data {
-		//fmt.Fprint(w, "地图: "+flower.Map)
-		t.Execute(w, flower.Map)
+		c.HTML(http.StatusOK, "flowers/flowers.html",
+			gin.H{
+				"Map":   flower.Map,
+				"Unit":  flower.Unit,
+				"Price": flower.Price,
+			})
 	}
 
 	//	fmt.Fprint(w, string(data))
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("views/index.html")
-	t.Execute(w, nil)
+func indexHanlder(c *gin.Context) {
+	c.HTML(
+		http.StatusOK,
+		"home/index.html",
+		gin.H{
+			"title": "花花价",
+		},
+	)
 }
 
+//Router
+var router *gin.Engine
+
 func main() {
-	//Router
-	router := mux.NewRouter()
-	router.HandleFunc("/", indexHandler).Methods("GET")
-	//	router.HandleFunc("/flowers", getFlowers)
-	router.HandleFunc("/", getFlowers).Methods("POST")
-	http.ListenAndServe(":3000", router)
+	//Set the default router
+	router = gin.Default()
+
+	//Views
+	router.LoadHTMLGlob("templates/**/*")
+
+	//Route
+	initRoutes()
+
+	//static file serve
+	router.Static("/public", "./public")
+
+	router.Run()
 }
