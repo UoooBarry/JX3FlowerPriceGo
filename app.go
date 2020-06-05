@@ -33,6 +33,7 @@ func getFlowers(c *gin.Context) {
 		"flowers/flowers_list.html",
 		gin.H{
 			"title": server + " : " + flower,
+			"serverf": server + " : " + flower,
 		})
 
 	for _, flower := range content.Data {
